@@ -20,11 +20,12 @@ import os
 import datetime
 import numpy as np
 import logging as log
+import platform
 
 import matplotlib as mpl
 # If no display is attached it will fail to plot and save figures.. so lets check
 #  If we are now using the Agg backend, we cannot display to screen, so toggle "show" for debug
-if 'DISPLAY' in os.environ.keys() and os.environ['DISPLAY'] != "":
+if 'DISPLAY' in os.environ.keys() and os.environ['DISPLAY'] != "" or platform.system() == 'Windows':
     try:
         mpl.use("TkAgg")
         AggOnly = False
@@ -34,7 +35,8 @@ if 'DISPLAY' in os.environ.keys() and os.environ['DISPLAY'] != "":
 else:
     mpl.use("Agg")
     AggOnly = True
-    log.info("Note: using failsafe backend, Agg")
+    # Using print instead of log to avoid using logging before proper initialization
+    print("Note: using failsafe backend, Agg")
 
 import matplotlib.pyplot as plt
 

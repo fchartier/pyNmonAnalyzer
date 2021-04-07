@@ -162,8 +162,9 @@ class pyNmonAnalyzer:
                 level=logLevel, format='%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s')
         else:
             log.basicConfig(
-                level=logLevel, format='%(levelname)s - %(message)s')
+                level=logLevel, format='%(asctime)s - %(levelname)s - %(message)s')
 
+        log.debug("ARGS: %s", args)
         return args
 
     def saveReportConfig(self, reportConf, configFname="report.config"):
