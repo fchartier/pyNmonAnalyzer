@@ -64,12 +64,14 @@ class pyNmonPlotter:
             log.error("Nothing to plot")
             exit()
 
+        cpu_times = [datetime.datetime.strptime(d, "%d-%b-%Y %H:%M:%S")
+                     for d in self.processedData["CPU_ALL"][0][1:]]
+
         for stat, fields, plotOpts in todoList:
             log.info("Processing stats %s", stat)
             if "CPU" in stat:
                 # parse NMON date/timestamps and produce datetime objects
-                times = [datetime.datetime.strptime(
-                    d, "%d-%b-%Y %H:%M:%S") for d in self.processedData["CPU_ALL"][0][1:]]
+                times = cpu_times
                 values = []
                 values.append((self.processedData["CPU_ALL"][1][1:], "usr"))
                 values.append((self.processedData["CPU_ALL"][2][1:], "sys"))
@@ -82,8 +84,7 @@ class pyNmonPlotter:
 
             elif "DISKBUSY" in stat:
                 # parse NMON date/timestamps and produce datetime objects
-                times = [datetime.datetime.strptime(
-                    d, "%d-%b-%Y %H:%M:%S") for d in self.processedData["DISKBUSY"][0][1:]]
+                times = cpu_times
 
                 values = []
                 for i in self.processedData["DISKBUSY"]:
@@ -101,8 +102,7 @@ class pyNmonPlotter:
             elif "MEM" in stat:
                 # TODO: implement using Stacked graphs for this
                 # parse NMON date/timestamps and produce datetime objects
-                times = [datetime.datetime.strptime(
-                    d, "%d-%b-%Y %H:%M:%S") for d in self.processedData["CPU_ALL"][0][1:]]
+                times = cpu_times
                 values = []
 
                 mem = np.array(self.processedData["MEM"])
@@ -135,8 +135,7 @@ class pyNmonPlotter:
 
             elif "NET" in stat:
                 # parse NMON date/timestamps and produce datetime objects
-                times = [datetime.datetime.strptime(
-                    d, "%d-%b-%Y %H:%M:%S") for d in self.processedData["CPU_ALL"][0][1:]]
+                times = cpu_times
                 values = []
 
                 read = np.array([])
@@ -158,21 +157,21 @@ class pyNmonPlotter:
                 outFiles.append(fname)
             else:  # General graph
                 # parse NMON date/timestamps and produce datetime objects
-                times = [datetime.datetime.strptime(d, "%d-%b-%Y %H:%M:%S") for d in self.processedData["CPU_ALL"][0][1:]]
+                times = cpu_times
                 values = []
 
-                read = np.array([])
-                write = np.array([])
+                max_read = 0
                 for i in self.processedData[stat]:
                     colTitle = i[:1][0]
                     if colTitle in fields:
                         read = np.array([float(x) for x in i[1:]])
+                        max_read = max(max_read, max(read))
                         values.append((read, colTitle))
 
                 data = (times, values)
                 fname = self.plotStat(data, xlabel="Time", ylabel=stat,
                                       title="%s vs Time" % stat,
-                                      yrange=[0, max(read) * 1.2])  # seems wrong: should be max of all values
+                                      yrange=[0, max_read * 1.2])  # seems wrong: should be max of all values
                 outFiles.append(fname)
 
         return outFiles
@@ -195,12 +194,9 @@ class pyNmonPlotter:
             c = np.array([float(x) for x in values[2][0]])
             y = np.row_stack((a, b, c))
             y_ax = np.cumsum(y, axis=0)
-            ax.fill_between(times, 0, y_ax[0, :],
-                            facecolor="green", label="usr")
-            ax.fill_between(
-                times, y_ax[0, :], y_ax[1, :], facecolor="red", label="sys")
-            ax.fill_between(times, y_ax[1, :], y_ax[2, :],
-                            facecolor="blue", label="wait")
+            ax.fill_between(times, 0, y_ax[0, :], facecolor="green", label="usr")
+            ax.fill_between(times, y_ax[0, :], y_ax[1, :], facecolor="red", label="sys")
+            ax.fill_between(times, y_ax[1, :], y_ax[2, :], facecolor="blue", label="wait")
 
             # hack for getting around missing legend
             p1 = plt.Rectangle((0, 0), 1, 1, fc="g")
@@ -237,7 +233,7 @@ class pyNmonPlotter:
             else:
                 log.error("cant .show() when using the Agg backend")
 
-        outFilename = os.path.join(
-            self.imgPath, title.replace(" ", "_") + ".png")
+        outFilename = os.path.join(self.imgPath, title.replace(" ", "_") + ".png")
         plt.savefig(outFilename)
+        plt.close()
         return outFilename
