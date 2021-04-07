@@ -284,7 +284,7 @@ class pyNmonAnalyzer:
         outFiles = nmonPlotter.plotStats(reportConfig, self.isAIX())
 
         # Build HTML report
-        pyNmonReport.createReport(outFiles, self.args.outdir)
+        pyNmonReport.createReport(outFiles, self.args.outdir, in_fname=self.nmonParser.fname)
 
     def isAIX(self):
         # TODO: find better test to see if it is AIX
