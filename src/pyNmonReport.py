@@ -25,7 +25,8 @@ htmlheader = '''<html>
 <head><title>pyNmonReport %s / {inputfile}</title></head>
 <body>
 <table>	
-''' % (datetime_now.isoformat())
+<tr><td><center><p>pyNmonReport generated at %s from {inputfile}</p></center></td></tr>
+''' % (datetime_now.isoformat(), datetime_now.isoformat())
 
 
 def createReport(outFiles, outPath, fname="report.html", in_fname=""):
@@ -39,8 +40,6 @@ def createReport(outFiles, outPath, fname="report.html", in_fname=""):
     # write out the html header
     report.write(htmlheader.format(inputfile=in_fname))
 
-    report.write("<tr><td><center><p>pyNmonReport generated at %s from %s</p></center></td></tr>\n" %
-                 (datetime_now.isoformat(), in_fname))
     # TODO : write sysinfo
 
     for f in outFiles:
