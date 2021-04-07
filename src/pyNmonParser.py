@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import logging as log
 import datetime
+import gzip
 
 
 class pyNmonParser:
@@ -130,8 +131,12 @@ class pyNmonParser:
 
     def parse(self):
         # TODO: check fname
-        f = open(self.fname, "r")
+        if self.fname.endswith(".gz"):
+            f = gzip.open(self.fname, "rt")
+        else:
+            f = open(self.fname, "r")
         rawdata = f.readlines()
+        f.close()
         for l in rawdata:
             l = l.strip()
             bits = l.split(',')
