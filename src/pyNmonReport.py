@@ -104,13 +104,13 @@ def createInteractiveReport(reportConfig, outPath, data=None, dygraphLoc="http:/
                     if i.lower() in c[0].lower():
                         headings.append(c[0])
                         numericArray = [float(x) for x in c[1:]]
-                        if max(numericArray) > localMax or localMax == None:
+                        if localMax is None or max(numericArray) > localMax:
                             localMax = max(numericArray)
-                        if min(numericArray) < localMin or localMin == None:
+                        if localMin is None or min(numericArray) < localMin:
                             localMin = min(numericArray)
             displayCols.append(headings)
-            localMin = (0.0 if localMin == None else localMin)
-            localMax = (0.0 if localMax == None else localMax)
+            localMin = (0.0 if localMin is None else localMin)
+            localMax = (0.0 if localMax is None else localMax)
 
             if k[0] in ["CPU_ALL", "DISKBUSY"]:
                 # its a prct so FORCE range 0-105

@@ -22,9 +22,9 @@ from shutil import rmtree
 import argparse
 import logging as log
 
-from . import pyNmonParser
-from . import pyNmonPlotter
-from . import pyNmonReport
+import pyNmonParser
+import pyNmonPlotter
+import pyNmonReport
 
 
 class pyNmonAnalyzer:
@@ -51,7 +51,7 @@ class pyNmonAnalyzer:
 
         if self.args.defaultConf:
             # write out default report and exit
-            log.warn("Note: writing default report config file to " +
+            log.warning("Note: writing default report config file to " +
                      self.args.confFname)
             self.saveReportConfig(
                 self.stdReport, configFname=self.args.confFname)
@@ -60,19 +60,19 @@ class pyNmonAnalyzer:
         if self.args.buildReport:
             # check whether specified report config exists
             if os.path.exists(self.args.confFname) == False:
-                log.warn("looks like the specified config file(\"" +
+                log.warning("looks like the specified config file(\"" +
                          self.args.confFname + "\") does not exist.")
-                ans = raw_input(
+                ans = input(
                     "\t Would you like us to write the default file out for you? [y/n]:")
 
                 if ans.strip().lower() == "y":
                     self.saveReportConfig(
                         self.stdReport, configFname=self.args.confFname)
-                    log.warn("Wrote default config to report.config.")
-                    log.warn(
+                    log.warning("Wrote default config to report.config.")
+                    log.warning(
                         "Please adjust report.config to ensure the correct devices will be graphed.")
                 else:
-                    log.warn(
+                    log.warning(
                         "\nNOTE: you could try using the default config file with: -r report.config")
                 sys.exit()
 
