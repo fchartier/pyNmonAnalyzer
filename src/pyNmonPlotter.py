@@ -65,6 +65,7 @@ class pyNmonPlotter:
             exit()
 
         for stat, fields, plotOpts in todoList:
+            log.info("Processing stats %s", stat)
             if "CPU" in stat:
                 # parse NMON date/timestamps and produce datetime objects
                 times = [datetime.datetime.strptime(
@@ -155,6 +156,25 @@ class pyNmonPlotter:
                 fname = self.plotStat(data, xlabel="Time", ylabel="Network KB/s",
                                       title="Net vs Time", yrange=[0, max(max(read), max(write)) * 1.2])
                 outFiles.append(fname)
+            else:  # General graph
+                # parse NMON date/timestamps and produce datetime objects
+                times = [datetime.datetime.strptime(d, "%d-%b-%Y %H:%M:%S") for d in self.processedData["CPU_ALL"][0][1:]]
+                values = []
+
+                read = np.array([])
+                write = np.array([])
+                for i in self.processedData[stat]:
+                    colTitle = i[:1][0]
+                    if colTitle in fields:
+                        read = np.array([float(x) for x in i[1:]])
+                        values.append((read, colTitle))
+
+                data = (times, values)
+                fname = self.plotStat(data, xlabel="Time", ylabel=stat,
+                                      title="%s vs Time" % stat,
+                                      yrange=[0, max(read) * 1.2])  # seems wrong: should be max of all values
+                outFiles.append(fname)
+
         return outFiles
 
     def plotStat(self, data, xlabel="time", ylabel="", title="title", isPrct=False, yrange=[0, 105], stacked=False):
